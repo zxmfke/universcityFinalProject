@@ -1,0 +1,347 @@
+<html>
+<head>
+	<meta charset='utf-8'>
+	<script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="plugin/highstock/highstock.js"></script>
+	<script type="text/javascript" src="plugin/highstock/modules/exporting.js"></script>
+	<SCRIPT type="text/javascript" src="plugin/highstock/modules/map.js"> </SCRIPT>
+	<script type="text/javascript" src="plugin/highmaps/tw-all.js"></script>
+	<script type="text/javascript" src="plugin/highmaps/exporting.js"></script>
+	<script type="text/javascript" src="js/mainpageForUI.js"></script>
+	<script type="text/javascript" src="js/mainpageForData.js"></script>
+	<script type="text/javascript" src="js/hoverpulse.js"></script>
+	<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="plugin/custombox/legacy.min.js"></script>
+	<script type="text/javascript" src="plugin/custombox/custombox.min.js"></script>
+
+	
+	<link rel="stylesheet" href="css/customBox.css">
+	<link rel="stylesheet" href="plugin/animate/animate.css">
+	<link rel="stylesheet" href="plugin/bootstrap-3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" href="plugin/bootstrap-3.3.5/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="plugin/custombox/custombox.min.css">
+	<link rel="stylesheet" href="css/forMainpage.css">
+	<link rel="stylesheet" href="css/jquery.dataTables.min.css">
+	<script type="text/javascript" src="plugin/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+</head>
+<title>封包監測與分析系統</title>
+<body>
+	
+	<!-- slide bar -->
+	<div id="mwt_mwt_slider_scroll">
+		<div id="mwt_tab">
+			<img src="image/item.png" id="item"></img>
+		    <div style="">
+			   <img src="image/logo_gray.png"id="logo"></img>
+		    </div>
+		    <img src="image/setting.png" id="set"></img>
+		</div>
+		<div id="mwt_slider_content" >
+			<div class="menu" style="top:10%;">
+				<img src="image/showpck.png" title="封包展示" id="pckinfo"></img>
+			</div>
+			<div class="menu" style="top:30%;">
+				<img src="image/statistics.png" title="流量統計" id="statistics"></img>
+			</div>
+			<div class="menu" style="top:50%;">
+				<img src="image/location.png" title="位置辨識" id="location"></img>
+			</div>
+			<div class="menu" style="top:70%;">
+				<img src="image/information.png" title="關於我們" id="us"></img>
+			</div>
+		</div>
+	</div>
+
+	<div id="container">
+		<div id="welcome">
+			<div id="hi">
+				Hi,&nbsp;<div id="userID"></div>
+				<button type="button" class="btn btn-link" onclick="Logout()">(登出)</button>
+			</div>
+			
+		</div>
+		<!-- first stage -->
+		<div id="main">
+			
+
+			<div class="mainPage">
+				<div>
+<!-- 					<img id="to" src="image/to.png" />
+					<img id="be" src="image/be.png" />
+					<img id="your" src="image/your.png" />
+					<img id="network" src="image/network.png" />
+					<img id="host" src="image/host.png" /> -->
+					<div id="title">封包監測與分析系統</div>
+
+					<svg viewBox="0 0 1000 1000">
+		  				<circle cx="500" cy="500" r="450" stroke="black" stroke-width="30" fill="none"/>
+		  				<circle cx="500" cy="500" r="30" stroke="black" stroke-width="30" fill="black"/>
+           				<path d="M500,500,500,236" id="hour"/>
+           				<path d="M500,500,500,120" id="min" />
+           				<path d="M500,500,500,90" id="sec" />
+          			</svg>
+
+					<span style="position:absolute;bottom:15%;left:46%;font-size:20px;font-weight:bold;" id="local"></span>
+				</div>
+	   		</div>
+	    </div>
+
+	    <!-- package information stage -->
+	    <div class="stage" id="package">
+	    	<div class="gap_left">
+	    		<span class="pageTitle"><font size="20">封包資訊</font></span>
+	    		<span class="pageTitle"><font size="10" face="Lucida Handwriting">package information</font></span>
+	    	</div>
+	    	
+			<div class="gap_left gap_top" id="packageData">
+				
+			</div>
+		</div>
+	    
+		<!-- package analysis stage -->
+		<div class="stage" id="highchart">
+			<div class="gap_left">
+	    		<span class="pageTitle"><font size="20">封包流量分析</font></span>
+	    		<span class="pageTitle"><font size="10" face="Lucida Handwriting">package analys</font></span>
+	    	</div>
+
+	    	<div class="gap_left gap_top">
+				<div id="statisticsGraph" class="abgne_tab" style="height:520px;">
+					<ul class="tabs">
+						<li id="time_li">
+							<a href="#time_tab">封包流量</a>
+						</li>
+						<li id="protocol_li">
+							<a href="#protocol_tab">Protocol</a>
+						</li>
+						<li id="port_li">
+							<a href="#port_tab">port</a>
+						</li>
+						<li id="top_li">
+							<a href="#top_tab">TOP10</a>
+						</li>
+
+						<ul id="top_tab" class="subtabs">
+		                    <li id="topIP_subtab">
+	    	                	<a href="#topIP_tab">網路流</a>
+	    	                </li>
+	    	                <li id="topPort_subtab">
+	        	            	<a href="#topPort_tab">PORT</a>
+	            	        </li>
+	            	    </ul>
+
+						<li id="search_li">
+							<a href="#search_tab">查詢特定流相關圖表</a>
+						</li>
+
+						<ul id="search_tab" class="subtabs">
+		           		    <li id="searchTime_subtab" >
+		           	    	 	<a href="#searchTime_tab">流量</a>
+		     		        </li>
+<!-- 		           		    <li id="searchProtocol_subtab">
+		                	    <a href="#searchProtocol_tab">Protocol</a>
+		                	</li> -->
+		            	</ul>
+					</ul>
+
+
+					<div class="tab_container">
+						<div id="time_tab" class="tab_content">
+							<div id="statisticsTime"></div>
+						</div>
+						<div id="protocol_tab" class="tab_content">
+							<div id="statisticsProtocol"></div>
+						</div>
+						<div id="port_tab" class="tab_content" >
+							<div id="statisticsSourcePort" class="portPie"></div>
+							<button type="button" id="sback" class="btn btn-default btn-xs" onclick="sback()">返回原圖</button>
+							<div id="statisticsDestinationPort" class="portPie"></div>
+							<button type="button" id="dback" class="btn btn-default btn-xs" onclick="dback()">返回原圖</button>
+						</div>
+						<div id="topIP_tab" class="tab_content">
+								<div id="statisticsTopIP"></div>
+						</div>
+						<div id="topPort_tab" class="tab_content" style="overflow-y:auto; overflow-x:hidden;">
+							<div id="statisticsTopSourcePort"></div>
+							<!-- <button type="button" id="change" class="btn btn-default btn-xs" onclick="change()">切換來源/目的Port</button> -->
+							<div id="statisticsTopDestinationPort"></div>
+						</div>
+						<div id="searchTime_tab" class="tab_content">
+							<div id="statisticsSearchTime" >尚未點擊查詢網路流，請至封包展示點擊需查看的網路流</div>
+						</div>
+<!-- 						<div id="searchProtocol_tab" class="tab_content">
+							<div id="statisticsSearchProtocol" >尚未點擊查詢網路流，請至封包展示點擊需查看的網路流</div>
+						</div> -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- package location stage -->
+		<div class="stage" id="ipLocation">
+			<div class="gap_left">
+	    		<span class="pageTitle"><font size="20">封包位置辨識</font></span>
+	    		<span class="pageTitle"><font size="10" face="Lucida Handwriting">package location</font></span>
+	    	</div>
+			<div class="gap_left gap_top gap_down">
+				<font size="4" face="微軟正黑體">請輸入欲查詢IP</font>&nbsp;&nbsp;
+				<input type="text"  id="ip" size="20"></input>
+				<button  id="search_ip" onclick="searchip()">查詢</button>
+				<font size="4" face="微軟正黑體" color="red" id="showlocation"></font>
+			</div>
+			<!-- <div>
+			<button id="lo_start">開始</button>
+			<button id="lo_stop">停止</button>
+			</div> -->
+			<div class="gap_left" id="ip_tw"></div>
+    	</div>
+
+    </div>
+
+	<!-- custom box about us -->
+	<div id="modal_aboutUs" class="modal_div">
+		<button type="button" class="close" onclick="closeShowip()">
+           	<span>×</span>
+           	<span class="btn_close">Close</span>
+        </button>
+        <img src="image/logo.png" class="aus_img"></img>
+        <h4>
+        	<font face="Lucida Handwriting" size="5">Information about us</font>
+        </h4>
+        <div class="content"> 
+        	<div>
+				<table class="about_us" id="about_us">
+					<tr>
+						<td>
+							<img src="image/show.png"/>
+							<span>創立動機</span>
+						</td>
+					</tr>
+					<tr class="mask">
+						<td>
+							<p>在現今網路流量日益增多的情況下，如何在數量龐大的封包中找到有用的資訊？
+							<br>
+							<br>透過這個網站，我們希望幫助使用者來分析封包資訊，讓使用者可以更了解網路原理。
+							<br>
+							<br>這個網站提供分析封包及流量統計的功能並且能透過圖表更詳細的分析流量。
+							</p>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<img src="image/show.png"/>
+							<span>功能簡介</span>
+						</td>
+					</tr>
+					<tr class="mask">
+						<td>
+							<p>I. 封包展示 - 展示封包流的基本資訊。點擊連接圖片，可以查看在這個封包流中有哪些封包，每個封包的作用是什麼。</p>
+							<p>II. 流量分析 - 將抓到的封包進行統計和分析，並藉由圖形化來顯示，可以讓使用者更容易瀏覽。</p>
+							<p>III. 位置辨識 - 可以查詢IPv4、IPv6格式的IP所在位置，並提供收到的封包IP在臺灣的分佈圖，讓使用者能清楚IP來源。</p>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<img src="image/show.png"/>
+							<span>網站作者</span>
+						</td>
+					</tr>
+					<tr class="mask">
+						<td>
+							<p>鄭驍敏</p>
+							<p>莊惟中</p>
+							<p>施宗和</p>
+						</td>
+					</tr>
+				</table>
+			</div>
+	    </div>
+		<h5 style="font-family:Lucida Handwriting">~TO BE YOUR NETWORK HOST~</h5>
+	</div>
+
+	<!-- custom box location -->
+	<div id="modal_location" class="modal_div">
+		<button type="button" class="close" onclick="Custombox.close();">
+           	<span>×</span>
+           	<span class="btn_close">Close</span>
+        </button>
+        <h4></h4>
+        <div class="content" align="center">
+        	<table id="show_ip" style="table-layout:fixed;"></table> 
+        </div>
+        <div id="count" align="right" style="font-size:16px;"></div>
+	</div>
+	
+	<div id="modal_flowInfo" class="modal_div">
+		<button type="button" class="close" onclick="Custombox.close();">
+           	<span>×</span>
+           	<span class="btn_close">Close</span>
+        </button>
+        <h4>流</h4>
+        <div >
+        	<div class="col-md-8" id="flowData">
+        	</div>
+        	<div class="col-md-4 content" id="flowPckDetail">
+        		可以點選一個封包，查看封包詳細資訊
+        	</div>
+        </div>
+	</div>
+
+	<div id="modal_set" class="modal_div_small">
+		<button type="button" class="close" onclick="Custombox.close();barMove();">
+           	<span>×</span>
+           	<span class="btn_close">Close</span>
+        </button>
+        <h4>設定--動態更新</h4>
+        <div class="content">
+        	<table id="small">
+        		<tr>
+        			<td colspan="2" align="center">      				
+        				<input type="text" id="SecurityCode" placeholder="請輸入驗證碼">
+        			</td>
+        			<td>
+        				<a href="./php/MFCtest.exe">download</a>
+        			</td>
+        		</tr
+        		<tr>
+        			<td  align="center">
+        				封包展示
+        			</td>
+        			<td align="center">
+        				<div class="switch radius">
+                			<input id="switch_packageInfo" type="checkbox" >
+                			<label for="switch_packageInfo" align="center"></label>
+        				</div>
+        			</td>
+        		</tr>
+        		<tr>
+        			<td  align="center">
+        				流量統計
+        			</td>
+        			<td align="center">
+        				<div class="switch radius">
+                			<input id="switch_statsitic" type="checkbox" >
+                			<label for="switch_statsitic"></label>
+        				</div>
+        			</td>
+        		</tr>
+        		<tr>
+        			<td  align="center">
+        				封包定位
+        			</td>
+        			<td align="center">
+        				<div class="switch radius">
+                			<input id="switch_location" type="checkbox" >
+                			<label for="switch_location"></label>
+        				</div>
+        			</td>
+        		</tr>
+        	</table>
+        </div>
+	</div>
+
+
+
+
+</body>
+</html>

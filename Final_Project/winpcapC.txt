@@ -1,0 +1,564 @@
+﻿#define WIN32
+#include <tchar.h>
+#include <pcap.h>
+#include <inc.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <atltime.h>
+
+#define NET_CARD_KEY "System\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
+#pragma comment(lib, "ws2_32")
+
+void handlePacket(u_char *param, const struct pcap_pkthdr *header, const u_char *pkt_data);
+void Analyse_IPv4Packet(CString eHeader,const u_char *data,CString pTime);
+void Analyse_IPv6Package(CString eHeader,const u_char *data,CString pTime);
+void Analyse_ARPPacket(CString eHeader,const u_char *data,CString pTime);
+void Analyse_PPPoEPackage(const struct pcap_pkthdr *header,struct ether_header *eth,const u_char *data,CString pTime);
+void print_UDPPacket(CString eHeader,CString iHeader,const u_char *data,CString pTime);
+void print_ICMPPacket(CString eHeader,CString iHeader,const u_char *data,CString pTime);
+void print_TCPPacket(CString eHeader,CString iHeader,const u_char *data,CString pTime);
+CString print_EthHeader(struct ether_header *eth,const struct pcap_pkthdr *header);
+CString print_IPHeader(struct ip4head *IP4Head,struct ip6head *IP6Head,bool isIP4);
+CString getTime();
+CString buildIP6Addr(struct in6_addr *ip);
+bool isLocalAdapter(const char *dName);
+
+FILE *fp;
+FILE *unkp;
+
+/* main function */
+int _tmain(int argc,char *argv[])
+{
+    pcap_if_t *all_dev; //all devices
+    pcap_if_t *d;       //one of devices
+    int inum = 0, i = 0;//i:count all devices；iumn:number of device which want to open
+
+    //find all device	
+    if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &all_dev, NULL) == -1)
+    {
+        return 0;
+    }
+    for(d = all_dev; d; d = d->next)
+    {
+        printf("%d. %s\n", ++i, d->description);
+		//if(isLocalAdapter(d->name)){
+			//inum = i;
+		//}
+    }
+    if(i==0)
+    {
+        printf("\nNo network device found! Make sure WinPcap is installed.\n");
+        return 0;
+    }
+
+    //scanf_s("%d",&inum);
+    inum = atoi(argv[1]);
+	//select device
+	for(d=all_dev, i=0; i< inum-1; d=d->next, i++); 
+
+    //open device
+    pcap_t *pHandle = pcap_open_live(d->name, 65536, PCAP_OPENFLAG_PROMISCUOUS, 500, NULL); 
+    if(pHandle == NULL)
+    {
+        pcap_freealldevs(all_dev);
+        return -1;
+    }
+
+	printf("\nlistening on %s...\n",d->description);
+
+	pcap_freealldevs(all_dev);
+	
+	pcap_loop(pHandle,0,handlePacket,NULL);
+	
+    return 0;
+}
+
+/*************************************************************
+ * 函數名:handlePacket
+
+ * 輸入:	  u_char *param ---
+          const struct pcap_pkthdr *header -- 
+		  const u_char *pkt_data --
+
+ * 輸出:  無
+*************************************************************/
+void handlePacket(u_char *param, const struct pcap_pkthdr *header, const u_char *pkt_data){
+
+	struct ether_header *eth = (struct ether_header *)pkt_data;
+
+	CString pTime = getTime();
+	CString eHeader = print_EthHeader(eth,header);
+
+	switch(ntohs(eth->ether_type))
+	{
+	case ETHERTYPE_ARP:
+		{
+			//Analyse_ARPPacket(eHeader,pkt_data+14,pTime);
+			break;
+		}
+	case ETHERTYPE_IP:
+		{
+			//Analyse_IPv4Packet(eHeader,pkt_data+14,pTime);
+			break;
+		}
+	case ETHERTYPE_PPPoE:
+		{
+			//Analyse_PPPoEPackage(header,eth,pkt_data+14,pTime); 
+			break;
+		}
+	case ETHERTYPE_IPv6:
+		{
+			Analyse_IPv6Package(eHeader,pkt_data+14,pTime); 
+			break;
+		}
+	default:
+		{
+			unkp = fopen("H:\\unknownPackage.txt","at");
+			fprintf(unkp,"unknown package:0x%0X\n",ntohs(eth->ether_type));
+			fclose(unkp);
+			printf("unknown package:0x%0X\n",ntohs(eth->ether_type));
+			break;
+		}
+	}
+}
+
+/*************************************************************
+ * 函數名:Analyse_IPv4Packet
+
+ * 函數目的:解IPv4封包，並根據抓取到的協定到所屬函數繼續解封包
+
+ * 輸入:	  CString eHeader ---
+          const u_char *data --
+		  CString pTime --
+
+ * 輸出:  無
+*************************************************************/
+void Analyse_IPv4Packet(CString eHeader,const u_char *data,CString pTime)
+{
+	struct ip4head *IP4Head;
+	IP4Head=(ip4head *)data;
+
+	CString iHeader = print_IPHeader(IP4Head,NULL,true);
+
+	switch(IP4Head->ip4_protocol)
+	{
+		case 1:
+			print_ICMPPacket(eHeader,iHeader,data+20,pTime);
+			break;
+		case 6:
+			print_TCPPacket(eHeader,iHeader,data+20,pTime);
+			break;
+		case 17:
+			print_UDPPacket(eHeader,iHeader,data+20,pTime);
+			break;
+		default:
+			break;
+	}
+
+	return;
+}
+
+/*************************************************************
+ * 函數名:Analyse_IPv6Packet
+
+ * 函數目的:解IPv6封包，並根據抓取到的協定到所屬函數繼續解封包
+
+ * 輸入:	  CString eHeader ---
+          const u_char *data --
+		  CString pTime --
+
+ * 輸出:  無
+*************************************************************/
+void Analyse_IPv6Package(CString eHeader,const u_char *data,CString pTime){
+	struct ip6head  *IP6Head;
+	IP6Head = (ip6head *) data;
+	
+	CString iHeader = print_IPHeader(NULL,IP6Head,false);
+
+	switch(IP6Head->ip6_next_header)
+	{
+		case 0x3a:
+			//print_ICMPPacket(eHeader,iHeader,data+54,pTime);
+			break;
+		case 6:
+			print_TCPPacket(eHeader,iHeader,data+20,pTime);
+			break;
+		case 17:
+			print_UDPPacket(eHeader,iHeader,data+20,pTime);
+			break;
+		default:
+			break;
+	}
+}
+
+/*************************************************************
+ * 函數名:Analyse_ARPPacket
+
+ * 函數目的:解ARP封包，並將抓取到的資訊寫入packageLog.txt檔案中
+
+ * 輸入:	  CString eHeader ---
+          const u_char *data --
+		  CString pTime --
+
+ * 輸出:  無
+*************************************************************/
+void Analyse_ARPPacket(CString eHeader,const u_char *data,CString pTime)
+{
+	printf("ARP Package\n");
+	CString arpStr = "";
+	u_char* mac_string;
+	arpStr.Append(eHeader);
+	arpStr.Append(",");
+
+	struct arphead *ARPHead;
+	ARPHead=(arphead *)data;
+
+	arpStr.AppendFormat("\"arp\":{\"opcode\":\"%d\",",ntohs(ARPHead->arp_operation_code));
+	arpStr.AppendFormat("\"hLen\":\"%d\",\"pLen\":\"%d\",",ARPHead->arp_hardware_length,ARPHead->arp_protocol_length);
+	arpStr.AppendFormat("\"hardType\":\"%d\",",ntohs(ARPHead->arp_hardware_type));
+	arpStr.AppendFormat("\"proType\":\"%d\",",ntohs(ARPHead->arp_protocol_type));
+	arpStr.AppendFormat("\"sip\":\"%d.%d.%d.%d\",",ARPHead->arp_source_ip_address[0],ARPHead->arp_source_ip_address[1],ARPHead->arp_source_ip_address[2],ARPHead->arp_source_ip_address[3]);
+	arpStr.AppendFormat("\"dip\":\"%d.%d.%d.%d\",",ARPHead->arp_destination_ip_address[0],ARPHead->arp_destination_ip_address[1],ARPHead->arp_destination_ip_address[2],ARPHead->arp_destination_ip_address[3]);
+	mac_string=ARPHead->arp_source_ethernet_address;
+	arpStr.AppendFormat("\"smac\":\"%02x:%02x:%02x:%02x:%02x:%02x\",",*mac_string,*(mac_string+1),*(mac_string+2),*(mac_string+3),*(mac_string+4),*(mac_string+5));
+	mac_string=ARPHead->arp_destination_ethernet_address;
+	arpStr.AppendFormat("\"dmac\":\"%02x:%02x:%02x:%02x:%02x:%02x\"",*mac_string,*(mac_string+1),*(mac_string+2),*(mac_string+3),*(mac_string+4),*(mac_string+5));
+	
+	arpStr.AppendFormat("},\"time\":\"%s\",\"tag\":\"arp\"}\n",pTime);
+	fp = fopen("C:\\wamp\\www\\project\\php\\packageLog.txt","at");
+	fprintf(fp,arpStr);
+	fclose(fp);
+}
+
+/*************************************************************
+ * 函數名:print_UDPPacket
+
+ * 函數目的:解UDP封包，並將抓取到的資訊寫入packageLog.txt檔案中
+
+ * 輸入:	  CString eHeader ---
+		  CString iHeader -- 
+          const u_char *data --
+		  CString pTime --
+
+ * 輸出:  無
+*************************************************************/
+void print_UDPPacket(CString eHeader,CString iHeader,const u_char *data,CString pTime)
+{
+	printf("UDP Package\n");
+
+	CString udpStr;
+	udpStr.AppendFormat("%s,%s,",eHeader,iHeader);
+
+	struct udphead *UDPHead;
+	UDPHead=(udphead *)data;
+
+	udpStr.AppendFormat("\"udp\":{\"sport\":\"%d\",\"dport\":\"%d\",\"len\":\"%d\"},\"time\":\"%s\",\"tag\":\"udp\"}\n",ntohs(UDPHead->udp_source_port),ntohs(UDPHead->udp_destinanion_port),UDPHead->udp_length,pTime);
+	fp = fopen("C:\\wamp\\www\\project\\php\\packageLog.txt","at");
+	fprintf(fp,udpStr);
+	fclose(fp);
+}
+
+/*************************************************************
+ * 函數名:print_ICMPPacket
+
+ * 函數目的:根據eHeader裏面的type，如果是IPv4就解ICMP封包，如果是
+           IPv6就解ICMPV6封包，並將抓取到的資訊寫入packageLog.txt
+		   檔案中
+
+ * 輸入:	  CString eHeader ---
+		  CString iHeader -- 
+          const u_char *data --
+		  CString pTime --
+
+ * 輸出:  無
+*************************************************************/
+void print_ICMPPacket(CString eHeader,CString iHeader,const u_char *data,CString pTime)
+{
+	printf("ICMP Package\n");
+	CString icmpStr;
+	icmpStr.AppendFormat("%s,%s,",eHeader,iHeader);
+
+	if(strstr(eHeader,"\"type\":\"34525\"")!="")
+	{
+		struct icmphead *ICMPHead = (icmphead *)data;
+		icmpStr.AppendFormat("\"icmp\":{\"type\":\"%d\",\"code\":\"%d\",\"id\":\"%d\",\"seq\":\"%d\"},\"time\":\"%s\",\"tag\":\"icmp\"}\n",ICMPHead->icmp_type,ICMPHead->icmp_code,ICMPHead->icmp_id,ICMPHead->icmp_sequence,pTime);
+	}
+	else 
+	{
+		struct icmpv6head *ICMPv6Head = (icmpv6head *)data;
+		icmpStr.AppendFormat("\"icmpv6\":{\"type\":\"%d\",\"code\":\"%d\"},\"time\":\"%s\",\"tag\":\"icmpv6\"}\n",ICMPv6Head->icmp6_type,ICMPv6Head->icmp6_code,pTime);
+	}
+	fp = fopen("C:\\wamp\\www\\project\\php\\packageLog.txt","at");
+	fprintf(fp,icmpStr);
+	fclose(fp);
+}
+
+/*************************************************************
+ * 函數名:print_TCPPacket
+
+ * 函數目的:解TCP封包，並將抓取到的資訊寫入packageLog.txt
+
+ * 輸入:	  CString eHeader ---
+		  CString iHeader -- 
+          const u_char *data --
+		  CString pTime --
+
+ * 輸出:  無
+*************************************************************/
+void print_TCPPacket(CString eHeader,CString iHeader,const u_char *data,CString pTime)
+{
+	printf("TCP Packet\n");
+	CString tcpStr;
+	tcpStr.AppendFormat("%s,%s,",eHeader,iHeader);
+
+	struct tcphead *TCPHead;
+	TCPHead=(tcphead *)data;
+
+	tcpStr.AppendFormat("\"tcp\":{\"sport\":\"%d\",\"dport\":\"%d\",\"seq\":\"%d\",\"ack\":\"%d\",",ntohs(TCPHead->th_sport),ntohs(TCPHead->th_dport),ntohs(TCPHead->th_seq),ntohs(TCPHead->th_ack));
+
+	/*switch(TCPHead->th_rs){
+	case TH_FIN:fprintf(fp,"-fin");break;
+	case TH_ACK:fprintf(fp,"-ack");break;
+    case TH_SYN:fprintf(fp,"-syn");break;
+	case TH_URG:fprintf(fp,"-urg");break;
+    case TH_RST:fprintf(fp,"-rst");break;
+	case TH_PUSH:fprintf(fp,"-psh");break;
+	default:break;
+	}*/
+	
+	tcpStr.AppendFormat("\"flag\":\"%d\",\"win\":\"%d\",\"off\":\"%d\"},\"time\":\"%s\",\"tag\":\"tcp\"}\n",TCPHead->th_flags,TCPHead->th_win,TCPHead->th_off,pTime);
+	fp = fopen("C:\\wamp\\www\\project\\php\\packageLog.txt","at");
+	fprintf(fp,tcpStr);
+	fclose(fp);
+}
+
+/*************************************************************
+ * 函數名:print_EthHeader
+
+ * 函數目的:拼裝以太網路封包頭資訊
+
+ * 輸入:	  struct ether_header *eth --
+          const struct pcap_pkthdr *header --
+
+ * 輸出:  拼装好的以太網路封包頭資訊字串
+*************************************************************/
+CString print_EthHeader(struct ether_header *eth,const struct pcap_pkthdr *header){
+	u_char* mac_string;
+	CString ethStr;
+	ethStr.AppendFormat("{\"Ethernet\":{\"type\":\"%d\",\"len\":\"%d\",\"caplen\":\"%d\",",ntohs(eth->ether_type),header->caplen,header->len);
+	mac_string=eth->ether_shost;
+	ethStr.AppendFormat("\"smac\":\"%02x:%02x:%02x:%02x:%02x:%02x\",",*mac_string,*(mac_string+1),*(mac_string+2),*(mac_string+3),*(mac_string+4),*(mac_string+5));
+	mac_string=eth->ether_dhost;
+	ethStr.AppendFormat("\"dmac\":\"%02x:%02x:%02x:%02x:%02x:%02x\"}",*mac_string,*(mac_string+1),*(mac_string+2),*(mac_string+3),*(mac_string+4),*(mac_string+5));
+	return ethStr;
+}
+
+/*************************************************************
+ * 函數名:print_IPHeader
+
+ * 函數目的:根據參數isIP4來判斷是否是IPv4或IPv6，然後拼裝IP封包頭
+		    資訊
+
+ * 輸入:	  struct ip4head *IP4Head --
+          struct ip6head *IP6Head --
+		  bool isIP4 --
+
+ * 輸出:  拼装好的IP封包頭資訊字串
+*************************************************************/
+CString print_IPHeader(struct ip4head *IP4Head,struct ip6head *IP6Head,bool isIP4){
+	CString ipStr;
+
+	if(isIP4)
+	{
+		struct in_addr *sIP = &(IP4Head->ip4_souce_address);
+		struct in_addr *dIP = &(IP4Head->ip4_destination_address);
+
+		ipStr.AppendFormat("\"ip4\":{\"hl\":\"%d\",\"version\":\"%d\",\"len\":\"%d\",",IP4Head->ip4_header_length,IP4Head->ip_version,IP4Head->ip4_length);
+		ipStr.AppendFormat("\"sip\":\"%d.%d.%d.%d\",",(int)sIP->S_un.S_un_b.s_b1,
+													  (int)sIP->S_un.S_un_b.s_b2,
+													  (int)sIP->S_un.S_un_b.s_b3,
+													  (int)sIP->S_un.S_un_b.s_b4);
+
+		ipStr.AppendFormat("\"dip\":\"%d.%d.%d.%d\",",(int)dIP->S_un.S_un_b.s_b1,
+													  (int)dIP->S_un.S_un_b.s_b2,
+													  (int)dIP->S_un.S_un_b.s_b3,
+													  (int)dIP->S_un.S_un_b.s_b4);
+
+		ipStr.AppendFormat("\"flag\":\"%d\",\"off\":\"%d\",\"protocol\":\"%d\",\"TTL\":\"%d\"}",IP4Head->ip4_flag,IP4Head->ip4_off,IP4Head->ip4_protocol,IP4Head->ip4_ttl);
+	}
+	else 
+	{
+		ipStr.AppendFormat("\"ip6\":{\"version\":\"6\",\"len\":\"%d\",\"label\":\"%d\",",IP6Head->ip6_length,IP6Head->ip6_label);
+		ipStr.AppendFormat("\"nextHeader\":\"%d\",\"hopLimit\":\"%d\",",IP6Head->ip6_next_header,IP6Head->ip6_limits);
+		ipStr.AppendFormat("\"sip\":\"%s\",\"dip\":\"%s\"}",buildIP6Addr(&(IP6Head->ip6_souce_address)),buildIP6Addr(&(IP6Head->ip6_destination_address)));
+
+	}
+
+	return ipStr;
+}
+
+/*************************************************************
+ * 函數名:getTime
+
+ * 函數目的:讀取抓到封包時的system time
+
+ * 輸入:	  無
+
+ * 輸出:  以"%d%02d%02d%02d%02d%02d%03d"格式拼裝的時間字串
+*************************************************************/
+CString getTime(){
+	SYSTEMTIME st;
+	CString timeStr;
+	GetLocalTime(&st);
+	timeStr.Format("%d%02d%02d%02d%02d%02d%03d",st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
+	return timeStr;
+}
+
+/*************************************************************
+ * 函數名:buildIP6Addr
+
+ * 函數目的:化簡並拼裝IPv6的IP地址
+
+ * 輸入:	  struct in6_addr *ip --
+
+ * 輸出:  拼裝好的IPv6封包的IP地址字串
+*************************************************************/
+CString buildIP6Addr(struct in6_addr *ip){
+
+	CString str;
+	CString tstr;
+	CString zero = "";
+	bool judge[9];
+	int parallelism[8][2]={{0,1},{2,3},{4,5},{6,7},{8,9},{10,11},{12,13},{14,15}};
+	bool isUse = false;
+	bool haveMTOZero = false;
+	
+	for(int i=0;i<9;i++){
+		judge[i]=(i!=8)?((ip->u.Byte[parallelism[i][0]])||(ip->u.Byte[parallelism[i][1]])?true:false):true;
+	}
+	
+	//末尾是0的還沒實驗過
+	for(int i=0;i<8;i++){
+		if((judge[i]||judge[i+1]) || isUse){
+			 if(!haveMTOZero || isUse)
+				{
+					unsigned char evenNum = ip->u.Byte[parallelism[i][0]];
+					unsigned char oddNum = ip->u.Byte[parallelism[i][1]];
+					if(evenNum)
+						str.AppendFormat("%x",evenNum);
+					if(oddNum)
+					{
+						if(oddNum>17)str.AppendFormat("%x",oddNum);
+						else {
+							str.AppendFormat(evenNum==0?"%x":"%02x",oddNum);
+						}
+					}
+					else str.Append("00");
+
+					str.Append((i!=7)?":":"");
+				}
+			  else 
+			  {
+				str.Append(!judge[0]?"::":":");
+			 	isUse=true;
+			 	haveMTOZero=false;
+			  }
+		}
+		else {
+			haveMTOZero=true;
+		}
+	}
+	
+	return str;
+}
+
+/*************************************************************
+ * 函數名:isLocalAdapter
+
+ * 函數目的:判斷網卡是否為本地網路適配器
+
+ * 輸入:	  const char *dName --
+
+ * 輸出:  如果是本地網路適配器為TURE，否則為FALSE
+*************************************************************/
+bool isLocalAdapter(const char *dName){
+
+	bool isName = 0;//判斷名稱是否相等的布林值
+	bool isPCI = 0;//判斷PCI是否存在的布林值
+
+	char szDataBuf[MAX_PATH+1];
+	wchar_t strQueryValue[32] = L"";
+	wchar_t valueForCh[32] = L"以太网";//network car name option
+	wchar_t valueForTW[32] = L"區域連線";
+    DWORD dwDataLen = MAX_PATH;
+    DWORD dwType = REG_SZ;
+    HKEY hNetKey = NULL;
+    HKEY hLocalNet = NULL;
+
+
+	//打開主鍵 "HKEY_LOCAL_MACHINE" ， 並判斷是否成功開啟
+	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,NET_CARD_KEY,0,KEY_QUERY_VALUE,&hNetKey) != ERROR_SUCCESS)return false;
+
+	sprintf(szDataBuf,"%s\\Connection",strstr(dName,"{"));
+
+	//打開傳進來的網卡所屬主鍵，並判斷是否成功開啟
+	if(RegOpenKeyEx(hNetKey ,szDataBuf ,0 ,KEY_QUERY_VALUE, &hLocalNet) != ERROR_SUCCESS){
+		RegCloseKey(hNetKey);
+		return false;
+	}
+
+	//取得參數 "Name" 的值，並判斷是否讀取到
+	if(RegQueryValueExW(hLocalNet, L"Name", NULL, NULL, (LPBYTE)strQueryValue, &dwDataLen) != ERROR_SUCCESS){
+		RegCloseKey(hLocalNet);
+		RegCloseKey(hNetKey);
+		return false;
+	}
+	
+	//判斷取得的 "Name" 的值是否等於"以太网"或"區域連線" 
+	if(wcscmp(strQueryValue,valueForCh)!=0 && wcscmp(strQueryValue,valueForTW)!=0){
+		RegCloseKey(hLocalNet);
+		RegCloseKey(hNetKey);
+		return false;
+	}
+	else {
+		 isName = true;
+	}
+	
+	dwDataLen = MAX_PATH;
+	
+	//取得參數 "PnpInstanceID" 的值，並判斷是否讀取到
+	if (RegQueryValueEx(hLocalNet, "PnpInstanceID", 0, &dwType, (BYTE *)szDataBuf, &dwDataLen) != ERROR_SUCCESS){
+		RegCloseKey(hLocalNet);
+		RegCloseKey(hNetKey);
+		return false;
+	}
+
+	//判斷讀取到的 "PnpInstanceID" 的值是否前三個字元是否為"PCI"
+	if(!strncmp(szDataBuf, "PCI",3)){
+		isPCI = true;
+	}
+	else {
+		RegCloseKey(hLocalNet);
+		RegCloseKey(hNetKey);
+		return false;
+	}
+
+
+	if(isPCI && isName)
+	return true;
+	else return false;
+}
+
+/* PPPoE package */
+void Analyse_PPPoEPackage(const struct pcap_pkthdr *header,struct ether_header *eth,const u_char *data,CString pTime){
+	//printf("PPPoE Package");
+
+	struct PPPoEhead *pppHead;
+	pppHead = (PPPoEhead *)data;
+
+	printf("%d\n",ntohs(pppHead->version));
+	printf("%d\n",ntohs(pppHead->code));
+	printf("%x\n",ntohs(pppHead->sesionID));
+	printf("%d\n",ntohs(pppHead->len));
+}

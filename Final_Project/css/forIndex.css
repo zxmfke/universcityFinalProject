@@ -1,0 +1,240 @@
+body
+{
+	background:url('../image/1.png') repeat;
+	position: fixed;
+	overflow-y: auto;
+}
+
+/*------------container-------------*/
+
+div#container
+{
+	position: fixed;
+	width: 100%;
+	height: 100%;
+}
+
+h4,h5 
+{
+    line-height: 18px;
+	padding: 15px 20px 15px 20px;
+}
+
+h4
+{
+	border-bottom: #CCC solid 1px;
+}
+
+h5
+{
+	border-top: #CCC solid 1px;
+	padding: 15px 20px 5px 20px;
+    height:1%;
+}
+
+
+/*-------------modal--------------*/
+
+.modal_div 
+{
+	background-color:white;
+	border-radius: 10px;
+	width:1500px;
+	padding-top:5px;
+	padding-bottom: 15px;
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+.modal_div_small 
+{
+	background-color:white;
+	border-radius: 10px;
+	width:200px;
+	padding-top:5px;
+	padding-bottom: 15px;
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+.modal_div div.content 
+{
+	height:460px;
+	overflow-y:auto;
+}
+
+.modal_div div.content div
+{
+	position: fixed;
+	margin-left:115px;
+	height:400px;
+	width:455px;
+	overflow-y:auto;
+}
+
+.modal_div#modal_flowInfo div.content div
+{
+	margin-left:0px;
+	width:455px;
+}
+
+.modal_div#modal_flowInfo div.content div h3
+{
+	text-align: left;
+}
+
+.modal_div img.detail_img
+{
+	position: absolute;
+	top:-100px;
+	left:10px;
+}
+
+.modal_div img.aus_img
+{
+	position: absolute;
+	top:50px;
+	left:10px;
+	width:100px;
+	height:100px;
+}
+
+.modal_div button
+{
+	position: absolute;
+	top:15px;
+	right:15px;
+}
+
+.modal_div button span.btn_close,.modal_div_small button span.btn_close
+{
+	position:absolute;
+	width:1px;
+	height:1px;
+	padding: 0px;
+	margin:0px;
+	overflow: hidden;
+	clip:rect(0,0,0,0);
+	border:0;
+}
+
+.modal_div_small table {
+	width: 270px;
+}
+
+.modal_div table span
+{
+	font-family: 微軟正黑體;
+	font-size: 20px;
+}
+
+.modal_div table p
+{
+	font-family: 微軟正黑體;
+	font-size: 15px;
+	margin-left:25px;
+}
+
+.modal_div table#small{
+
+}
+
+.modal_div table img
+{
+	margin-bottom:5px;
+	width:22px;
+	height:22px;
+}
+
+#modal_pDetail {
+	top:200;
+	position: absolute;
+	z-index: 1000;
+}
+
+/************logo/background**************/
+#web_logo{
+	position:absolute;
+	left:10%;
+	top:75%;
+	font-family:Microsoft JhengHei;
+	font-size:70px;
+}
+
+
+
+
+
+
+/************login**************/
+
+#login{
+	position: absolute;
+	top: 0%;
+	margin-left: 13%;
+	width: 300px;
+	opacity: 0;
+	font-family: Microsoft JhengHei;
+}
+
+#login div label{
+	color:#AAAAAA;
+}
+
+#loginError{
+	position: relative;
+	float: right;
+	color: red;
+}
+
+.mainButton{
+	float: right;
+}
+
+.mainButton button{
+	width: 70px;
+	font-family: Microsoft JhengHei;
+}
+
+#login_bg{
+	position: absolute;
+	background:rgba(0,0,0,0.6);
+	right: 15%;
+	width: 400px;
+	height:100%;
+}
+
+
+/************register**************/
+
+.reg_info{
+	width:350px;
+	height:180px;
+}
+
+#info1, #info2, #info3{
+	position : absolute;
+	margin-left: 40px;
+}
+
+.reg_info button{
+	position: absolute;
+	top:230px;
+	right:20px;
+}
+
+#userID{
+	display:inline;
+}
+
+#check4{
+	position: fixed;
+	margin-left: 88px;
+	/*margin-top: 2px;*/
+	width :190px;
+	height : 25px;
+	color : red;
+	font-family: 微軟正黑體;
+	;
+}
+

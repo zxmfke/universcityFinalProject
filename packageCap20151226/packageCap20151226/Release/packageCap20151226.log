@@ -1,0 +1,25 @@
+﻿生成启动时间为 2015/12/28 16:31:59。
+     1>项目“E:\vs\packageCap20151226\packageCap20151226\packageCap20151226.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D HAVE_REMOTE /D WPCAP /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\packageCap20151226.pch" /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt packageCap20151226Dlg.cpp
+         packageCap20151226Dlg.cpp
+     1>packageCap20151226Dlg.cpp(285): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+                 C:\Program Files (x86)\Windows Kits\8.1\Include\um\winsock2.h(1850) : 参见“inet_addr”的声明
+     1>packageCap20151226Dlg.cpp(758): warning C4996: 'wcstombs': This function or variable may be unsafe. Consider using wcstombs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdlib.h(575) : 参见“wcstombs”的声明
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\vs\packageCap20151226\Release\packageCap20151226.exe" /INCREMENTAL:NO /NOLOGO wpcap.lib ws2_32.lib Packet.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"E:\vs\packageCap20151226\Release\packageCap20151226.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\vs\packageCap20151226\Release\packageCap20151226.lib" /MACHINE:X86 /SAFESEH Release\packageCap20151226.res
+         Release\DlgProxy.obj
+         Release\packageCap20151226.obj
+         Release\packageCap20151226Dlg.obj
+         Release\stdafx.obj
+         正在生成代码
+         已完成代码的生成
+         packageCap20151226.vcxproj -> E:\vs\packageCap20151226\Release\packageCap20151226.exe
+       RegisterOutput:
+         "E:\vs\packageCap20151226\Release\packageCap20151226.exe" /RegServer
+     1>已完成生成项目“E:\vs\packageCap20151226\packageCap20151226\packageCap20151226.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:17.14

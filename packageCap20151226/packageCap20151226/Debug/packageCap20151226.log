@@ -1,0 +1,39 @@
+﻿生成启动时间为 2015/12/27 0:09:56。
+     1>项目“E:\vs\packageCap20151226\packageCap20151226\packageCap20151226.vcxproj”在节点 2 上(Build 个目标)。
+     1>Midl:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\midl.exe /D _DEBUG /W1 /nologo /char signed /env win32 /h "packageCap20151226_h.h" /tlb "Debug\packageCap20151226.tlb" /robust packageCap20151226.idl 
+         Processing .\packageCap20151226.idl
+         packageCap20151226.idl
+         Processing C:\Program Files (x86)\Windows Kits\8.1\Include\um\oaidl.idl
+         oaidl.idl
+         Processing C:\Program Files (x86)\Windows Kits\8.1\Include\um\objidl.idl
+         objidl.idl
+         Processing C:\Program Files (x86)\Windows Kits\8.1\Include\um\unknwn.idl
+         unknwn.idl
+         Processing C:\Program Files (x86)\Windows Kits\8.1\Include\shared\wtypes.idl
+         wtypes.idl
+         Processing C:\Program Files (x86)\Windows Kits\8.1\Include\shared\wtypesbase.idl
+         wtypesbase.idl
+         Processing C:\Program Files (x86)\Windows Kits\8.1\Include\shared\basetsd.h
+         basetsd.h
+         Processing C:\Program Files (x86)\Windows Kits\8.1\Include\shared\guiddef.h
+         guiddef.h
+         Processing C:\Program Files (x86)\Windows Kits\8.1\Include\um\oaidl.acf
+         oaidl.acf
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D WPCAP /D HAVE_REMOTE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"Debug\packageCap20151226.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D WPCAP /D HAVE_REMOTE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\packageCap20151226.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt DlgProxy.cpp packageCap20151226.cpp packageCap20151226Dlg.cpp
+         packageCap20151226Dlg.cpp
+     1>e:\vs\packagecap20151226\packagecap20151226\packagecap20151226dlg.cpp(47): error C2146: 语法错误: 缺少“;”(在标识符“aSocket”的前面)
+     1>e:\vs\packagecap20151226\packagecap20151226\packagecap20151226dlg.cpp(47): error C4430: 缺少类型说明符 - 假定为 int。注意:  C++ 不支持默认 int
+     1>e:\vs\packagecap20151226\packagecap20151226\packagecap20151226dlg.cpp(770): error C2228: “.Close”的左边必须有类/结构/联合
+                 类型是“int”
+         packageCap20151226.cpp
+         DlgProxy.cpp
+         正在生成代码...
+     1>已完成生成项目“E:\vs\packageCap20151226\packageCap20151226\packageCap20151226.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:11.77

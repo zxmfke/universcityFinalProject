@@ -1,0 +1,29 @@
+// packageCap20151226.idl : packageCap20151226.exe 的類型程式庫來源
+
+// 這個檔案會由 MIDL 編譯器處理以產生
+// 類型程式庫 (packageCap20151226.tlb)。
+
+[ uuid(91916E3C-9D2C-4BDA-A40F-666B233C803A), version(1.0) ]
+library packageCap20151226
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	//  CpackageCap20151226Doc 的主要分派介面
+	
+	[ uuid(6420E762-D6D8-434D-8977-1ECA80CEA9AC) ]
+	dispinterface IpackageCap20151226
+	{
+		properties:
+			
+		methods:
+	};
+
+	//  CpackageCap20151226Doc 的類別資訊
+	
+	[ uuid(F52E4DB7-08D9-4099-91CA-CD5A9ACB1E9B) ]
+	coclass packageCap20151226
+	{
+		[default] dispinterface IpackageCap20151226;
+	};
+};

@@ -1,0 +1,17 @@
+REGEDIT
+; 您的安裝程式會使用此 .REG 檔。
+; 如果無法使用安裝程式，會使用對 CWinApp::RegisterShellFileTypes 
+; 與 COleObjectFactory::UpdateRegistryAll 的呼叫，
+; 自動在您的 InitInstance 中登錄下列項目。
+
+
+HKEY_CLASSES_ROOT\packageCap20151226.Application = packageCap20151226 Application
+
+
+HKEY_CLASSES_ROOT\packageCap20151226.Application\CLSID = {F52E4DB7-08D9-4099-91CA-CD5A9ACB1E9B}
+
+HKEY_CLASSES_ROOT\CLSID\{F52E4DB7-08D9-4099-91CA-CD5A9ACB1E9B} = packageCap20151226 Application
+HKEY_CLASSES_ROOT\CLSID\{F52E4DB7-08D9-4099-91CA-CD5A9ACB1E9B}\ProgId = packageCap20151226.Application
+
+
+HKEY_CLASSES_ROOT\CLSID\{F52E4DB7-08D9-4099-91CA-CD5A9ACB1E9B}\LocalServer32 = packageCap20151226.EXE
